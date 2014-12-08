@@ -8,11 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-using System.Drawing.Drawing2D;
-using Microsoft.VisualBasic;
-
-//load engine
-using LD31.Engine;
 
 namespace LD31
 {
@@ -35,21 +30,25 @@ namespace LD31
     public partial class Form1 : Form
     {
         //GLOBAL VARIABLES
-        //canvas
+        //Graphics variables
         Graphics visual;
         Font screenFont = new Font(new FontFamily("Tahoma"), 32);
         Font inventoryFont = new Font(new FontFamily("Tahoma"), 12);
         Image black = Image.FromFile("C:\\Users\\Henry Senior\\Desktop\\LD31\\Graphics\\Black.png");
         Image success = Image.FromFile("C:\\Users\\Henry Senior\\Desktop\\LD31\\Graphics\\success.png");
         Image failure = Image.FromFile("C:\\Users\\Henry Senior\\Desktop\\LD31\\Graphics\\failure.png");
+        Image melted = Image.FromFile("C:\\Users\\Henry Senior\\Desktop\\LD31\\Graphics\\Melted.png");
         
+        //count down
+        int secLeft = 120;
+
         //Player
         int x = 380;
         int y = 525;
         direction dir = direction.up;
         int animationCycle = 1;
         bool isPaused = false;
-        Image playerImg = Image.FromFile("C:\\Users\\Henry Senior\\Desktop\\LD31\\Graphics\\Character\\final\\down1.png");
+        Image playerImg = Image.FromFile("C:\\Users\\Henry Senior\\Desktop\\LD31\\Graphics\\Character\\final\\error.png");
         Image bg = Image.FromFile("C:\\Users\\Henry Senior\\Desktop\\LD31\\Graphics\\World\\World.png");
         int inventroyCounter = 0;
         Clue[] Inventory = new Clue[5];
@@ -99,6 +98,11 @@ namespace LD31
             gameTimer.Interval = 1;
             gameTimer.Start();
             gameTimer.Enabled = true;
+
+            //Start melting Timer
+            meltTimer.Interval = 1000;
+            meltTimer.Start();
+            meltTimer.Enabled = true;
         }
 
         //LOAD BMP images
@@ -271,7 +275,7 @@ namespace LD31
 
         //Movement
         //Take key press and pass it to the move player function then call check clue void
-
+        
         public bool isWall(string dir) {
             switch (dir) { 
                 case "up":
@@ -298,15 +302,105 @@ namespace LD31
                         return true;
                     }
                     break;
-                default:
-                    MessageBox.Show("The dev messed up");
-                    return false;
-                    break;
-            }
-                   
+            }           
             
             //default response
             return false;
+        }
+
+        public Image setPlayerImg(direction dir) {
+            //Value to return
+            Image playerImgRtn = Image.FromFile("C:\\Users\\Henry Senior\\Desktop\\LD31\\Graphics\\Character\\final\\error.png");
+
+            switch (dir) { 
+                case direction.up:
+                    switch (animationCycle)
+                    {
+                        case 1:
+                            playerImgRtn = Image.FromFile("C:\\Users\\Henry Senior\\Desktop\\LD31\\Graphics\\Character\\final\\up1.png");
+                            animationCycle += 1;
+                            break;
+                        case 2:
+                            playerImgRtn = Image.FromFile("C:\\Users\\Henry Senior\\Desktop\\LD31\\Graphics\\Character\\final\\up2.png");
+                            animationCycle += 1;
+                            break;
+                        case 3:
+                            playerImgRtn = Image.FromFile("C:\\Users\\Henry Senior\\Desktop\\LD31\\Graphics\\Character\\final\\up3.png");
+                            animationCycle = 1;
+                            break;
+                        default:
+                            animationCycle = 1;
+                            break;
+                    }
+                    break;
+                case direction.down:
+                    switch (animationCycle)
+                    {
+                        case 1:
+                            playerImgRtn = Image.FromFile("C:\\Users\\Henry Senior\\Desktop\\LD31\\Graphics\\Character\\final\\down1.png");
+                            animationCycle += 1;
+                            break;
+                        case 2:
+                            playerImgRtn = Image.FromFile("C:\\Users\\Henry Senior\\Desktop\\LD31\\Graphics\\Character\\final\\down2.png");
+                            animationCycle += 1;
+                            break;
+                        case 3:
+                            playerImgRtn = Image.FromFile("C:\\Users\\Henry Senior\\Desktop\\LD31\\Graphics\\Character\\final\\down3.png");
+                            animationCycle = 1;
+                            break;
+                        default:
+                            animationCycle = 1;
+                            break;
+                    }
+                    break;
+                case direction.left:
+                    switch (animationCycle)
+                    {
+                        case 1:
+                            playerImgRtn = Image.FromFile("C:\\Users\\Henry Senior\\Desktop\\LD31\\Graphics\\Character\\final\\left1.png");
+                            animationCycle += 1;
+                            break;
+                        case 2:
+                            playerImgRtn = Image.FromFile("C:\\Users\\Henry Senior\\Desktop\\LD31\\Graphics\\Character\\final\\left2.png");
+                            animationCycle += 1;
+                            break;
+                        case 3:
+                            playerImgRtn = Image.FromFile("C:\\Users\\Henry Senior\\Desktop\\LD31\\Graphics\\Character\\final\\left3.png");
+                            animationCycle = 1;
+                            break;
+                        default:
+                            animationCycle = 1;
+                            break;
+                    }
+                    break;
+                case direction.right:
+                    switch (animationCycle)
+                    {
+                        case 1:
+                            playerImgRtn = Image.FromFile("C:\\Users\\Henry Senior\\Desktop\\LD31\\Graphics\\Character\\final\\right1.png");
+                            animationCycle += 1;
+                            break;
+                        case 2:
+                            playerImgRtn = Image.FromFile("C:\\Users\\Henry Senior\\Desktop\\LD31\\Graphics\\Character\\final\\right2.png");
+                            animationCycle += 1;
+                            break;
+                        case 3:
+                            playerImgRtn = Image.FromFile("C:\\Users\\Henry Senior\\Desktop\\LD31\\Graphics\\Character\\final\\right3.png");
+                            animationCycle = 1;
+                            break;
+                        default:
+                            animationCycle = 1;
+                            break;
+                    }
+                    break;
+                default:
+                    playerImgRtn = Image.FromFile("C:\\Users\\Henry Senior\\Desktop\\LD31\\Graphics\\Character\\final\\error.png");
+                    break;
+            }
+            //return the image
+            //visual.DrawImage(playerImg, new Rectangle(0, 0, 25, 25));             //use to check the the image function is returning the right picture
+
+            return playerImgRtn;
         }
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)
@@ -315,24 +409,8 @@ namespace LD31
             {
                 visual.DrawImage(bg, new Rectangle(0, 0, 784, 562));
                 y -= 10;
-
-                switch (animationCycle) { 
-                    case 1:
-                        playerImg = Image.FromFile("C:\\Users\\Henry Senior\\Desktop\\LD31\\Graphics\\Character\\final\\up1.png");
-                        animationCycle += 1;
-                        break;
-                    case 2:
-                        playerImg = Image.FromFile("C:\\Users\\Henry Senior\\Desktop\\LD31\\Graphics\\Character\\final\\up2.png");
-                        animationCycle += 1;
-                        break;
-                    case 3:
-                        playerImg = Image.FromFile("C:\\Users\\Henry Senior\\Desktop\\LD31\\Graphics\\Character\\final\\up3.png");
-                        animationCycle = 1;
-                        break;
-                    default:
-                        animationCycle = 1;
-                        break;
-                }
+                dir = direction.up;
+                playerImg = setPlayerImg(dir);
 
                 visual.DrawImage(playerImg, new Rectangle(x - 6, y - 6, 25, 25));
             }
@@ -341,25 +419,8 @@ namespace LD31
             {
                 visual.DrawImage(bg, new Rectangle(0, 0, 784, 562));
                 y += 10;
-
-                switch (animationCycle)
-                {
-                    case 1:
-                        playerImg = Image.FromFile("C:\\Users\\Henry Senior\\Desktop\\LD31\\Graphics\\Character\\final\\down1.png");
-                        animationCycle += 1;
-                        break;
-                    case 2:
-                        playerImg = Image.FromFile("C:\\Users\\Henry Senior\\Desktop\\LD31\\Graphics\\Character\\final\\down2.png");
-                        animationCycle += 1;
-                        break;
-                    case 3:
-                        playerImg = Image.FromFile("C:\\Users\\Henry Senior\\Desktop\\LD31\\Graphics\\Character\\final\\down3.png");
-                        animationCycle = 1;
-                        break;
-                    default:
-                        animationCycle = 1;
-                        break;
-                }
+                dir = direction.down;
+                playerImg = setPlayerImg(dir);
 
                 visual.DrawImage(playerImg, new Rectangle(x - 6, y - 6, 25, 25));
             }
@@ -367,26 +428,9 @@ namespace LD31
             if ((e.KeyCode == Keys.A) && (isPaused == false) && (isWall("left") == false))
             {
                 visual.DrawImage(bg, new Rectangle(0, 0, 784, 562));
-                x -= 10;
-
-                switch (animationCycle)
-                {
-                    case 1:
-                        playerImg = Image.FromFile("C:\\Users\\Henry Senior\\Desktop\\LD31\\Graphics\\Character\\final\\left1.png");
-                        animationCycle += 1;
-                        break;
-                    case 2:
-                        playerImg = Image.FromFile("C:\\Users\\Henry Senior\\Desktop\\LD31\\Graphics\\Character\\final\\left2.png");
-                        animationCycle += 1;
-                        break;
-                    case 3:
-                        playerImg = Image.FromFile("C:\\Users\\Henry Senior\\Desktop\\LD31\\Graphics\\Character\\final\\left3.png");
-                        animationCycle = 1;
-                        break;
-                    default:
-                        animationCycle = 1;
-                        break;
-                }
+                x-=10;
+                dir = direction.left;
+                playerImg = setPlayerImg(dir);
 
                 visual.DrawImage(playerImg, new Rectangle(x - 6, y - 6, 25, 25));
             }
@@ -395,25 +439,8 @@ namespace LD31
             {
                 visual.DrawImage(bg, new Rectangle(0, 0, 784, 562));
                 x += 10;
-
-                switch (animationCycle)
-                {
-                    case 1:
-                        playerImg = Image.FromFile("C:\\Users\\Henry Senior\\Desktop\\LD31\\Graphics\\Character\\final\\right1.png");
-                        animationCycle += 1;
-                        break;
-                    case 2:
-                        playerImg = Image.FromFile("C:\\Users\\Henry Senior\\Desktop\\LD31\\Graphics\\Character\\final\\right2.png");
-                        animationCycle += 1;
-                        break;
-                    case 3:
-                        playerImg = Image.FromFile("C:\\Users\\Henry Senior\\Desktop\\LD31\\Graphics\\Character\\final\\right3.png");
-                        animationCycle = 1;
-                        break;
-                    default:
-                        animationCycle = 1;
-                        break;
-                }
+                dir = direction.right;
+                playerImg = setPlayerImg(dir);
 
                 visual.DrawImage(playerImg, new Rectangle(x - 6, y - 6, 25, 25));
             }
@@ -582,6 +609,20 @@ namespace LD31
             //check if found clue
             if (checkIfOnClue() > -1) {
                 gameTimer.Enabled = false;
+            }
+        }
+
+        //updates the time until melt
+        private void meltEvent(object sender, EventArgs e)
+        {
+            if (secLeft > 0)
+            {
+                secLeft -= 1;
+                this.Text = "Time left until melted: " + secLeft;
+            }
+            else {
+                isPaused = true;
+                visual.DrawImage(melted, new Rectangle(0, 0, 784, 562));
             }
         }
     }

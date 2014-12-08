@@ -44,10 +44,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Engine\Clues\Clues.cs" />
-    <Compile Include="Engine\Graphics\loadTextue.cs" />
-    <Compile Include="Engine\Inventroy.cs" />
-    <Compile Include="Engine\Math\MathFunc.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
